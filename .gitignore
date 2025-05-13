@@ -1,0 +1,8 @@
+# C++ build files
+*.exe
+*.out
+*.o
+*.obj
+*.log
+*.DS_Store
+build/
