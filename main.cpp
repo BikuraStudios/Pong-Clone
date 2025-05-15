@@ -9,8 +9,8 @@ int main()
     sf::RenderWindow window(sf::VideoMode({ 800, 600 }), "Pong");
 
 
-    // Score Counter
-	
+    // Font
+
     sf::Font font("PressStart2P.ttf");
     int player1Score = 0;
     std::string player1ScoreString = std::to_string(player1Score);
@@ -29,6 +29,27 @@ int main()
     scoreTextRight.setFillColor(sf::Color::White);
     scoreTextRight.setPosition({ 580.f, 20.f });
     scoreTextRight.setString(player2ScoreString);
+
+    //Tells who the winning player is
+    sf::Text winText(font);
+    winText.setCharacterSize(45);
+    winText.setFillColor(sf::Color::White);
+    winText.setPosition({ 100.f, 175.f });
+    winText.setString("PLAYER 1 WINS");
+
+    sf::Text winText2(font);
+    winText2.setCharacterSize(45);
+    winText2.setFillColor(sf::Color::White);
+    winText2.setPosition({ 100.f, 175.f });
+    winText2.setString("PLAYER 2 WINS");
+
+    
+    sf::Text pauseText(font);
+    pauseText.setCharacterSize(50);
+    pauseText.setFillColor(sf::Color::White);
+    pauseText.setPosition({ 275.f, 250.f });
+    pauseText.setString("PAUSE");
+    
 
 
         //Create a paddle: width 20, height 150
@@ -57,10 +78,17 @@ int main()
     // Clock used to track frame time
     sf::Clock clock;
 
-	
+    // pause needs to be initialized outside the game state
+    bool Pause{ true };
+    bool matchEnd{ false };
 
-	
+	//Ball starting velocity randomizer?
+    float iniBallvelocity = abs((rand() % 400 + 200));
 
+    sf::Vector2f initialBallVelocity(iniBallvelocity, iniBallvelocity);
+
+    ballVelocity = initialBallVelocity;
+    
 
     // Game loop
     while (window.isOpen())
@@ -69,14 +97,64 @@ int main()
         {
             if (event->is<sf::Event::Closed>())
                 window.close();
+            else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+            {
+                if (keyPressed->scancode == sf::Keyboard::Scancode::Escape)
+                    window.close();
+                
+            }
+            if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+            {
+                if (keyPressed->scancode == sf::Keyboard::Scancode::Space)
+                    Pause = !Pause;
+                    
+            }
+            if (player1Score >= 10)
+            {
+
+                matchEnd = true;
+                Pause = true;
+
+            }
+            if (player2Score >= 10)
+            {
+
+                matchEnd = true;
+                Pause = true;
+
+            }
+
+                
         }
+        //Pause check
+
+        //std::cout << Pause << " \n";
+
+        
+
+        // With the correct way to check for a key press event:
+        /* if (bool sf::Event::KeyReleased::Space)
+            Pause = true;
+        }
+                
+        if (Pause == true)
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
+                Pause = false;
+                */
 
         // Get the time elapsed since last frame
         float deltaTime = clock.restart().asSeconds();
 
+        
+        
+
         // Move the ball based on its velocity and deltaTime
-        ball.move(ballVelocity * deltaTime);
-        const float maxSpeed = 500.f; // Maximum speed for the ball
+        if (Pause == false)
+           ball.move(ballVelocity * deltaTime);
+
+        //Maxspeed variable
+          const float maxSpeed = 700.f; // Maximum speed for the ball
+        
         // AABB collision detection
             // first, we create the bounding box variables
         sf::FloatRect leftPaddleBounds = paddle.getGlobalBounds();
@@ -87,30 +165,34 @@ int main()
         {
             // Collision detected
             std::cout << "Collision detected!" << std::endl;
-            ballVelocity.x *= -1.0f; // Reverse the ball's x velocity
+            ballVelocity.x *= -1.1f; // Reverse the ball's x velocity
         }
         if (const std::optional intersection = ballBounds.findIntersection(rightPaddleBounds))
         {
             // Collision detected
             std::cout << "Collision detected!" << std::endl;
-            ballVelocity.x *= -1.0f; // Reverse the ball's x velocity
+            ballVelocity.x *= -1.1f; // Reverse the ball's x velocity
         }
 
         //Check the paddle's position
         //std::cout << "Paddle Position: " << paddle.getPosition().y << std::endl;
         //check the balls's position
         //std::cout << "Ball Position: " << ball.getPosition().x << ", " << ball.getPosition().y << std::endl;
-        //std::cout << "Ball Speed: " << ballVelocity.x << ", " << ballVelocity.y << std::endl;
+        std::cout << "Ball Speed: " << ballVelocity.x << ", " << ballVelocity.y << std::endl;
 
-        
-        // Movement input
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+      
+
+            // Movement input
+        if (Pause == false)
         {
-            paddle.move({ 0.f, -paddleSpeed * deltaTime });
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-        {
-            paddle.move({ 0.f, paddleSpeed * deltaTime });
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+            {
+                paddle.move({ 0.f, -paddleSpeed * deltaTime });
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+            {
+                paddle.move({ 0.f, paddleSpeed * deltaTime });
+            }
         }
         // Stop the paddle from going out of bounds
         if (paddle.getPosition().y < 0.f)
@@ -119,13 +201,16 @@ int main()
             paddle.setPosition({ paddle.getPosition().x, window.getSize().y - paddle.getSize().y });
 
         // Movement input
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+        if (Pause == false)
         {
-            paddle2.move({ 0.f, -paddleSpeed * deltaTime });
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
-        {
-            paddle2.move({ 0.f, paddleSpeed * deltaTime });
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+            {
+                paddle2.move({ 0.f, -paddleSpeed * deltaTime });
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+            {
+                paddle2.move({ 0.f, paddleSpeed * deltaTime });
+            }
         }
         // Stop the paddle from going out of bounds
         if (paddle2.getPosition().y < 0.f)
@@ -138,22 +223,22 @@ int main()
         if (ball.getPosition().y < 0.f)                                                                // I think this makes the ball bounce?
         {
 
-            //ballVelocity.y *= -1.03f;
-            ballVelocity.y *= -2.0f;              // Speed test                                          
+            ballVelocity.y *= -1.03f;
+            //ballVelocity.y *= -2.0f;              // Speed test                                          
         }
         ballVelocity.x = std::clamp(ballVelocity.x, -maxSpeed, maxSpeed);
         ballVelocity.y = std::clamp(ballVelocity.y, -maxSpeed, maxSpeed);
         if (ball.getPosition().y > window.getSize().y - ball.getRadius() * 2.f)                        // confirmed, the ball bounces of the top and bottom of the window
         {
 
-            //ballVelocity.y *= -1.03f;
-            ballVelocity.y *= -2.0f;              // Speed test
+            ballVelocity.y *= -1.03f;
+            //ballVelocity.y *= -2.0f;              // Speed test
         }
         ballVelocity.x = std::clamp(ballVelocity.x, -maxSpeed, maxSpeed);
         ballVelocity.y = std::clamp(ballVelocity.y, -maxSpeed, maxSpeed);
 
-        // For now, the ball bounces off the left and right, but eventually these colisions will be for scoring
-        if (ball.getPosition().x < 0.f)                      // ball bounces off the left side of the window
+        
+        if (ball.getPosition().x < 0.f)                      // enters goal
         {
             player2Score += 1;
             ball.setPosition({ 400.f, 300.f });
@@ -192,12 +277,23 @@ int main()
 
 
         window.clear(sf::Color::Black);         // Clear the screen
+        if (Pause == true)
+            if (matchEnd == false)
+                window.draw(pauseText);             // When the game is paused, draw PAUSE in the middle of the screen as long as the game has not finished
+        if (matchEnd == true)
+        {
+            if (player1Score >= 10)
+                window.draw(winText);
+            if (player2Score >= 10)
+                window.draw(winText2);
+        }
 		window.draw(scoreTextLeft);               // Draw the left score
 		window.draw(scoreTextRight);              // Draw the right score
         window.draw(paddle);                    // Draw the paddle
         window.draw(paddle2);                   // Draw the paddle
         window.draw(ball);                      // Draw the ball      [Additional note, I spent 5 minutes wondering why the ball wasn't showing up only to realize this command is necessary]
         window.display();                       // Show the drawn frame
+        
     }
 
     return 0;
