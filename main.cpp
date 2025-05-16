@@ -43,17 +43,29 @@ int main()
     winText2.setPosition({ 100.f, 175.f });
     winText2.setString("PLAYER 2 WINS");
 
-    
+
     sf::Text pauseText(font);
     pauseText.setCharacterSize(50);
     pauseText.setFillColor(sf::Color::White);
     pauseText.setPosition({ 275.f, 250.f });
     pauseText.setString("PAUSE");
-    
+
+    sf::Text titleText(font);
+    titleText.setCharacterSize(30);
+    titleText.setFillColor(sf::Color::White);
+    titleText.setPosition({ 100.f, 175.f });
+    titleText.setString("PRESS ENTER TO START");
 
 
-        //Create a paddle: width 20, height 150
-        sf::RectangleShape paddle({ 20.f,150.f });
+    sf::Text titleEndText(font);
+    titleEndText.setCharacterSize(25);
+    titleEndText.setFillColor(sf::Color::White);
+    titleEndText.setPosition({ 120.f, 450.f });
+    titleEndText.setString("PRESS ENTER TO RESTART");
+
+
+    //Create a paddle: width 20, height 150
+    sf::RectangleShape paddle({ 20.f,150.f });
     paddle.setFillColor(sf::Color::White);      // Color the paddle white
     paddle.setPosition({ 50.f,250.f }); 	    // Position the paddle at (50, 250)   
 
@@ -78,16 +90,24 @@ int main()
     // Clock used to track frame time
     sf::Clock clock;
 
-    // pause needs to be initialized outside the game state
+    // Game state flags
     bool Pause{ true };
     bool matchEnd{ false };
+    bool titleScreen{ true };
+    bool startNewGame = false;
 
+    if (((titleScreen == true) && player1Score >= 10) || ((titleScreen == true) && (player2Score >= 10)))
+    {
+        player1Score = 0;
+        player2Score = 0;
+        matchEnd = false;
+    }
 	//Ball starting velocity randomizer?
-    float iniBallvelocity = abs((rand() % 400 + 200));
+    //float iniBallvelocity = abs((rand() % 400 + 200));
 
-    sf::Vector2f initialBallVelocity(iniBallvelocity, iniBallvelocity);
+    //sf::Vector2f initialBallVelocity(iniBallvelocity, iniBallvelocity);
 
-    ballVelocity = initialBallVelocity;
+    //ballVelocity = initialBallVelocity;
     
 
     // Game loop
@@ -109,11 +129,30 @@ int main()
                     Pause = !Pause;
                     
             }
+            if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+            {
+                if (keyPressed->scancode == sf::Keyboard::Scancode::Enter)
+                {
+                    if (titleScreen || matchEnd) {
+                        startNewGame = true;
+                    }
+                    Pause = false;
+                    titleScreen = false;
+                    matchEnd = false;
+                }
+                    
+
+            }
             if (player1Score >= 10)
             {
 
                 matchEnd = true;
                 Pause = true;
+                if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+                {
+                    if (keyPressed->scancode == sf::Keyboard::Scancode::Enter)
+                        titleScreen = true;
+                }
 
             }
             if (player2Score >= 10)
@@ -121,7 +160,11 @@ int main()
 
                 matchEnd = true;
                 Pause = true;
-
+                if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+                {
+                    if (keyPressed->scancode == sf::Keyboard::Scancode::Enter)
+                        titleScreen = true;
+                }
             }
 
                 
@@ -145,7 +188,25 @@ int main()
         // Get the time elapsed since last frame
         float deltaTime = clock.restart().asSeconds();
 
-        
+        if (startNewGame) {
+            player1Score = 0;
+            player2Score = 0;
+            player1ScoreString = std::to_string(player1Score);
+            player2ScoreString = std::to_string(player2Score);
+            scoreTextLeft.setString(player1ScoreString);
+            scoreTextRight.setString(player2ScoreString);
+
+            // Reset ball and paddle positions
+            ball.setPosition({ 400.f, 300.f });
+            paddle.setPosition({ 50.f,250.f });
+            paddle2.setPosition({ 725.f,250.f });
+
+            // Reset velocity
+            ballVelocity = { 200.f, 200.f };
+
+            startNewGame = false;
+        }
+
         
 
         // Move the ball based on its velocity and deltaTime
@@ -277,21 +338,32 @@ int main()
 
 
         window.clear(sf::Color::Black);         // Clear the screen
-        if (Pause == true)
-            if (matchEnd == false)
+        if (titleScreen == true)
+            window.draw(titleText);
+        if ((Pause == true) && (matchEnd == false) && (titleScreen == false))
                 window.draw(pauseText);             // When the game is paused, draw PAUSE in the middle of the screen as long as the game has not finished
         if (matchEnd == true)
         {
             if (player1Score >= 10)
+            {
                 window.draw(winText);
+                window.draw(titleEndText);
+            }
             if (player2Score >= 10)
+            {
                 window.draw(winText2);
+                window.draw(titleEndText);
+            }
+                
         }
+       
+            
 		window.draw(scoreTextLeft);               // Draw the left score
 		window.draw(scoreTextRight);              // Draw the right score
         window.draw(paddle);                    // Draw the paddle
         window.draw(paddle2);                   // Draw the paddle
         window.draw(ball);                      // Draw the ball      [Additional note, I spent 5 minutes wondering why the ball wasn't showing up only to realize this command is necessary]
+        //window.draw(titleEndText);              // comment out after testing
         window.display();                       // Show the drawn frame
         
     }
