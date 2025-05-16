@@ -8,7 +8,39 @@ int main()
     // Create the window with size 800x600 and title "Pong"
     sf::RenderWindow window(sf::VideoMode({ 800, 600 }), "Pong");
 
+    //color pallettes courtessy of lospec.com
+    
+    struct ColorPalette {
+        sf::Color background;
+        sf::Color ball;
+        sf::Color paddle;
+        sf::Color text;
+    };
+    // DMG gameboy theme
+    static const ColorPalette dmgPalette = {
+        sf::Color(27, 37, 61),
+        sf::Color(154, 173, 92),
+        sf::Color(55, 122, 100),
+        sf::Color(227, 226, 213)
+    };
+    // Off black and white theme (newsprint)
+    static const ColorPalette bnwPalette = {
+        sf::Color(46,38,34),
+        sf::Color(204, 206, 199),
+        sf::Color(160, 159, 151),
+        sf::Color(119, 116, 111)
+    };
+    // Gooseberry thistle (purple and blue) theme
+    static const ColorPalette gbtPalette = {
+        sf::Color(72, 55, 108),
+        sf::Color(184, 131, 185),
+        sf::Color(108, 86, 171),
+        sf::Color(191, 220, 225)
+    };
 
+
+
+    
     // Font
 
     sf::Font font("PressStart2P.ttf");
@@ -19,54 +51,54 @@ int main()
     // Left score text
     sf::Text scoreTextLeft(font);
     scoreTextLeft.setCharacterSize(40);
-    scoreTextLeft.setFillColor(sf::Color::White);
+    scoreTextLeft.setFillColor(gbtPalette.text);
     scoreTextLeft.setPosition({ 200.f, 20.f });
     scoreTextLeft.setString(player2ScoreString);
 
     // Right score text
     sf::Text scoreTextRight(font);
     scoreTextRight.setCharacterSize(40);
-    scoreTextRight.setFillColor(sf::Color::White);
+    scoreTextRight.setFillColor(gbtPalette.text);
     scoreTextRight.setPosition({ 580.f, 20.f });
     scoreTextRight.setString(player2ScoreString);
 
     //Tells who the winning player is
     sf::Text winText(font);
     winText.setCharacterSize(45);
-    winText.setFillColor(sf::Color::White);
+    winText.setFillColor(gbtPalette.text);
     winText.setPosition({ 100.f, 175.f });
     winText.setString("PLAYER 1 WINS");
 
     sf::Text winText2(font);
     winText2.setCharacterSize(45);
-    winText2.setFillColor(sf::Color::White);
+    winText2.setFillColor(gbtPalette.text);
     winText2.setPosition({ 100.f, 175.f });
     winText2.setString("PLAYER 2 WINS");
 
 
     sf::Text pauseText(font);
     pauseText.setCharacterSize(50);
-    pauseText.setFillColor(sf::Color::White);
+    pauseText.setFillColor(gbtPalette.text);
     pauseText.setPosition({ 275.f, 250.f });
     pauseText.setString("PAUSE");
 
     sf::Text titleText(font);
     titleText.setCharacterSize(30);
-    titleText.setFillColor(sf::Color::White);
+    titleText.setFillColor(gbtPalette.text);
     titleText.setPosition({ 100.f, 175.f });
     titleText.setString("PRESS ENTER TO START");
 
 
     sf::Text titleEndText(font);
     titleEndText.setCharacterSize(25);
-    titleEndText.setFillColor(sf::Color::White);
+    titleEndText.setFillColor(gbtPalette.text);
     titleEndText.setPosition({ 120.f, 450.f });
     titleEndText.setString("PRESS ENTER TO RESTART");
 
 
     //Create a paddle: width 20, height 150
     sf::RectangleShape paddle({ 20.f,150.f });
-    paddle.setFillColor(sf::Color::White);      // Color the paddle white
+    paddle.setFillColor(gbtPalette.paddle);      // Color the paddle white
     paddle.setPosition({ 50.f,250.f }); 	    // Position the paddle at (50, 250)   
 
     // Paddle speed set to 300 pixels per second
@@ -74,14 +106,14 @@ int main()
 
     //Create a paddle: width 20, height 150
     sf::RectangleShape paddle2({ 20.f,150.f });
-    paddle2.setFillColor(sf::Color::White);      // Color the paddle white
+    paddle2.setFillColor(gbtPalette.paddle);      // Color the paddle white
     paddle2.setPosition({ 725.f,250.f }); 	    // Position the paddle at (50, 250)   
 
 
 
     // Create a ball: Radius 10
     sf::CircleShape ball(10.f);
-    ball.setFillColor(sf::Color::Blue);        // Color the ball white
+    ball.setFillColor(gbtPalette.ball);        // Color the ball white
     ball.setPosition({ 400.f, 300.f });         // Position the ball in the center of the window
 
     // how fast the ball moves (200 pixels per second)
@@ -214,7 +246,7 @@ int main()
            ball.move(ballVelocity * deltaTime);
 
         //Maxspeed variable
-          const float maxSpeed = 700.f; // Maximum speed for the ball
+          const float maxSpeed = 500.f; // Maximum speed for the ball
         
         // AABB collision detection
             // first, we create the bounding box variables
@@ -337,7 +369,7 @@ int main()
 
 
 
-        window.clear(sf::Color::Black);         // Clear the screen
+        window.clear(gbtPalette.background);         // Clear the screen
         if (titleScreen == true)
             window.draw(titleText);
         if ((Pause == true) && (matchEnd == false) && (titleScreen == false))
