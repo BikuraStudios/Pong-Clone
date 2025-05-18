@@ -1,45 +1,27 @@
 Pong (SFML + C++)
-これは、CS50のゲーム開発コースを受講しながら作成しているシンプルなPongクローンです。
-ゲームのグラフィックとロジックにはC++とSFMLを使用しています。
 
-機能
-1つのパドル
+A rough interpretation of Harvard's CS50 introduction to game development module 0.
 
-基本的なバウンス物理を使ったボールの動き
+Controls:
 
-W/Sキーで操作するパドルの移動
+| Player | Action    | Key       |
+| ------ | --------- | --------- |
+| 1      | Move Up   | `W`       |
+| 1      | Move Down | `S`       |
+| 2      | Move Up   | `↑ Arrow` |
+| 2      | Move Down | `↓ Arrow` |
+| All    | Start Game| `Enter`   |
+| All    | Quit Game | `Escape`  |
+| All    | Pause Game| `Space`   |
+| All    | Color Swap| `Tab`     |
 
-目標
-スコア機能を追加
+Known Issues:
 
-2つ目のパドル（AIまたはプレイヤー）を追加
+Ball behaves erraticly when hitting paddles on corners.
+Window Resize / Movement breaks internal physics.
 
-衝突判定の改善
+Todo:
+Write up coding post-mortem.
 
-依存関係
+Dependencies:
 SFML
-
-このREADMEファイルはChat GPTを使って生成されました。
-
-Pong (SFML + C++)
-This is a simple Pong clone I'm building while taking the CS50 Game Development course.
-I'm using C++ and SFML for the graphics and game logic.
-
-Features
-One paddle
-
-Ball movement with basic bounce physics
-
-Controlled paddle movement with W/S keys
-
-Goals
-Add scoring
-
-Add second paddle (AI or player)
-
-Improve collision detection
-
-Dependencies
-SFML
-
-This readme file was generated using Chat GPT.
