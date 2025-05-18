@@ -25,3 +25,6 @@ Write up coding post-mortem.
 
 Dependencies:
 SFML
+
+Note:
+Fixing this code is probably beyond my current abilities. I'll come back to this project in a few months as practice for cleaning up and refactoring.
