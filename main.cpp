@@ -4,12 +4,17 @@
 #include <string>
 #include <SFML/Audio.hpp>
 
+float randomDirection() 
+{
+    return (rand() % 2 == 0) ? 1.f : -1.f;
+}
+
 int main()
 {
     // Create the window with size 800x600 and title "Pong"
    // float resX = 800.f;
     //float resY = 600.f;
-    sf::RenderWindow window(sf::VideoMode({ 800,600 }), "Pong");
+    sf::RenderWindow window(sf::VideoMode({ 800,600 }), "Pong", sf::Style::Default);
 
     
 
@@ -71,7 +76,9 @@ int main()
         sf::Color(191, 220, 225)
     };
 
-
+    std::vector<ColorPalette> palettes = { bkrPalette, dmgPalette, bnwPalette, gbtPalette };
+    int currentPaletteIndex = 0;
+    ColorPalette currentPalette = palettes[currentPaletteIndex];
 
     
     // Font
@@ -84,54 +91,54 @@ int main()
     // Left score text
     sf::Text scoreTextLeft(font);
     scoreTextLeft.setCharacterSize(40);
-    scoreTextLeft.setFillColor(bkrPalette.text);
+    scoreTextLeft.setFillColor(currentPalette.text);
     scoreTextLeft.setPosition({ 200.f, 20.f });
-    scoreTextLeft.setString(player2ScoreString);
+    scoreTextLeft.setString(player1ScoreString);
 
     // Right score text
     sf::Text scoreTextRight(font);
     scoreTextRight.setCharacterSize(40);
-    scoreTextRight.setFillColor(bkrPalette.text);
+    scoreTextRight.setFillColor(currentPalette.text);
     scoreTextRight.setPosition({ 580.f, 20.f });
     scoreTextRight.setString(player2ScoreString);
 
     //Tells who the winning player is
     sf::Text winText(font);
     winText.setCharacterSize(45);
-    winText.setFillColor(bkrPalette.text);
+    winText.setFillColor(currentPalette.text);
     winText.setPosition({ 100.f, 175.f });
     winText.setString("PLAYER 1 WINS");
 
     sf::Text winText2(font);
     winText2.setCharacterSize(45);
-    winText2.setFillColor(bkrPalette.text);
+    winText2.setFillColor(currentPalette.text);
     winText2.setPosition({ 100.f, 175.f });
     winText2.setString("PLAYER 2 WINS");
 
 
     sf::Text pauseText(font);
     pauseText.setCharacterSize(50);
-    pauseText.setFillColor(bkrPalette.text);
+    pauseText.setFillColor(currentPalette.text);
     pauseText.setPosition({ 275.f, 250.f });
     pauseText.setString("PAUSE");
 
     sf::Text titleText(font);
     titleText.setCharacterSize(30);
-    titleText.setFillColor(bkrPalette.text);
+    titleText.setFillColor(currentPalette.text);
     titleText.setPosition({ 100.f, 175.f });
     titleText.setString("PRESS ENTER TO START");
 
 
     sf::Text titleEndText(font);
     titleEndText.setCharacterSize(25);
-    titleEndText.setFillColor(bkrPalette.text);
+    titleEndText.setFillColor(currentPalette.text);
     titleEndText.setPosition({ 120.f, 450.f });
     titleEndText.setString("PRESS ENTER TO RESTART");
 
 
     //Create a paddle: width 20, height 150
     sf::RectangleShape paddle({ 20.f,150.f });
-    paddle.setFillColor(bkrPalette.paddle);      // Color the paddle white
+    paddle.setFillColor(currentPalette.paddle);      // Color the paddle white
     paddle.setPosition({ 50.f,250.f }); 	    // Position the paddle at (50, 250)   
 
     // Paddle speed set to 300 pixels per second
@@ -139,18 +146,21 @@ int main()
 
     //Create a paddle: width 20, height 150
     sf::RectangleShape paddle2({ 20.f,150.f });
-    paddle2.setFillColor(bkrPalette.paddle);      // Color the paddle white
+    paddle2.setFillColor(currentPalette.paddle);      // Color the paddle white
     paddle2.setPosition({ 725.f,250.f }); 	    // Position the paddle at (50, 250)   
 
 
 
     // Create a ball: Radius 10
     sf::CircleShape ball(10.f);
-    ball.setFillColor(bkrPalette.ball);        // Color the ball white
+    ball.setFillColor(currentPalette.ball);        // Color the ball white
     ball.setPosition({ 400.f, 300.f });         // Position the ball in the center of the window
 
     // how fast the ball moves (200 pixels per second)
     sf::Vector2f ballVelocity(200.f, 200.f);    // Moves diagonally
+    float directionX = randomDirection();
+    float directionY = randomDirection();
+    ballVelocity = { 200.f * directionX, 200.f * directionY };
 
     // Clock used to track frame time
     sf::Clock clock;
@@ -193,10 +203,34 @@ int main()
             {
                 if (keyPressed->scancode == sf::Keyboard::Scancode::Space)
                 {
-                    sound_pause.play();
                     Pause = !Pause;
+
+                    if (Pause)
+                        sound_pause.play();
+                    else
+                        sound_unpause.play();
+
+                    
+                }
+
+                if (keyPressed->scancode == sf::Keyboard::Scancode::Tab) {
+                    currentPaletteIndex = (currentPaletteIndex + 1) % palettes.size();
+                    currentPalette = palettes[currentPaletteIndex];
+
+                    paddle.setFillColor(currentPalette.paddle);
+                    paddle2.setFillColor(currentPalette.paddle);
+                    ball.setFillColor(currentPalette.ball);
+                    scoreTextLeft.setFillColor(currentPalette.text);
+                    scoreTextRight.setFillColor(currentPalette.text);
+                    winText.setFillColor(currentPalette.text);
+                    winText2.setFillColor(currentPalette.text);
+                    pauseText.setFillColor(currentPalette.text);
+                    titleText.setFillColor(currentPalette.text);
+                    titleEndText.setFillColor(currentPalette.text);
                 }
             }
+
+
             if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
             {
                 if (keyPressed->scancode == sf::Keyboard::Scancode::Enter)
@@ -283,7 +317,11 @@ int main()
             paddle2.setPosition({ 725.f,250.f });
 
             // Reset velocity
-            ballVelocity = { 200.f, 200.f };
+            //ballVelocity = { 200.f, 200.f };
+            
+            directionX = randomDirection();
+            directionY = randomDirection();
+            ballVelocity = { 200.f * directionX, 200.f * directionY };
 
             startNewGame = false;
         }
@@ -397,7 +435,7 @@ int main()
             sound_goal.play();
             player2Score += 1;
             ball.setPosition({ 400.f, 300.f });
-            ballVelocity = { 200.f, 200.f };
+            ballVelocity = { 200.f * directionX, 200.f * directionY };;
             player2ScoreString = std::to_string(player2Score);
             scoreTextLeft.setString(player2ScoreString);
         }
@@ -407,7 +445,9 @@ int main()
             sound_goal.play();                                                    // ball enters right goal
             player1Score += 1;
             ball.setPosition({ 400.f, 300.f });
-            ballVelocity = { 200.f, 200.f };
+            float directionX = randomDirection();
+            float directionY = randomDirection();
+            ballVelocity = { 200.f * directionX, 200.f * directionY };
 			player1ScoreString = std::to_string(player1Score);
 			scoreTextRight.setString(player1ScoreString);
         }
@@ -433,7 +473,7 @@ int main()
 
 
 
-        window.clear(bkrPalette.background);         // Clear the screen
+        window.clear(currentPalette.background);         // Clear the screen
         if (titleScreen == true)
             window.draw(titleText);
         if ((Pause == true) && (matchEnd == false) && (titleScreen == false))
@@ -452,7 +492,7 @@ int main()
             }
                 
         }
-       
+        
             
 		window.draw(scoreTextLeft);               // Draw the left score
 		window.draw(scoreTextRight);              // Draw the right score
